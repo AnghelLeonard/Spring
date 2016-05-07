@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:sec="http://www.springframework.org/schema/security"
+             xmlns:context="http://www.springframework.org/schema/context"
+             xsi:schemaLocation="
+      http://www.springframework.org/schema/security
+      http://www.springframework.org/schema/security/spring-security-4.0.xsd
+      http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+      http://www.springframework.org/schema/context
+	  http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <sec:http auto-config="true" use-expressions="true">
+        <sec:form-login login-page="/login"
+                        login-processing-url="/authenticateUser" default-target-url="/welcome"
+                        authentication-failure-url="/login" username-parameter="username"
+                        password-parameter="password" />
+			
+        <sec:access-denied-handler error-page="/403.jsp" />
+		
+        <sec:intercept-url pattern="/login" access="permitAll" />
+		
+        <sec:intercept-url pattern="/**" access="hasAuthority('AUTH_USER')" />
+        <sec:session-management invalid-session-url="/login" />
+        <sec:logout delete-cookies="JSESSIONID" logout-url="/logout" />
+    </sec:http>    
+    
+    <context:component-scan base-package="spring.components" />
+
+    <sec:authentication-manager>
+        <authentication-provider ref="customAuthenticationProvider" />
+    </sec:authentication-manager>
+
+    <beans:bean id="viewResolver"
+                class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <beans:property name="viewClass"
+                        value="org.springframework.web.servlet.view.JstlView" />
+        <beans:property name="prefix" value="/jsp/" />
+        <beans:property name="suffix" value=".jsp" />
+    </beans:bean> 
+    
+    <beans:bean id="loginDelegate" class="spring.components.LoginDelegate">
+        <beans:property name="userService" ref="userService"/>        
+    </beans:bean>
+
+    <beans:bean id="userService" class="spring.components.UserServiceImpl">
+        <beans:property name="userDao" ref="userDao"/>        
+    </beans:bean>
+
+    <beans:bean name="userDao" class="spring.components.UserDaoImpl">
+        <beans:property name="dataSource" ref="dataSource"/>        
+    </beans:bean>
+
+    <beans:bean id="dataSource"
+                class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <beans:property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <beans:property name="url" value="jdbc:mysql://localhost:3306/users?verifyServerCertificate=false&amp;useSSL=false&amp;requireSSL=false" />
+        <beans:property name="username" value="root" />
+        <beans:property name="password" value="java797b" />
+    </beans:bean>
+</beans:beans>
