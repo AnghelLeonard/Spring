@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="helloWorld" class="org.spring.hello.HelloWorld">
+        <property name="name" value="world" />
+
+        <!-- Setter-based dependency injection using an inner bean -->
+        <property name="countries">
+            <bean class="org.spring.hello.WorldCountries">
+                <property name="countries">
+                    <list>
+                        <value>Portugal</value>
+                        <value>Romania</value>
+                        <value>France</value>
+                    </list>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+</beans>
