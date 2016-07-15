@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+    Activates annotations in beans ALREADY registered in the application context (no matter if they were
+    defined with XML or by package scanning)
+    -->
+    <context:annotation-config/>
+
+    <!--
+    In autowiring by constructor, a property is autowired if exactly one bean of the property type exists in
+    the container.
+
+    If there are more than one bean of type 'WorldCountries', a fatal exception is thrown:
+
+    'Exception encountered during context initialization - cancelling refresh attempt:
+    org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name
+    'helloWorld' defined in class path resource [spring-beans.xml]..
+    ...
+    Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: expected single
+    matching bean but found 2'
+
+    In order to fix this, we can use the @Qualifier annotation with the <qualifier/> element or the bean id
+    in order to specify the proper dependency.
+    -->
+    <bean id="foo" class="org.spring.hello.WorldCountries">
+        <!--<qualifier value="foo"/>--> <!-- Still works if we uncomment this line and remove the bean id -->
+        <property name="countries">
+            <list>
+                <value>Portugal</value>
+                <value>Romania</value>
+                <value>France</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean class="org.spring.hello.WorldCountries">
+        <qualifier value="baz"/>
+    </bean>
+
+    <!-- Dependency injection using autowiring -->
+    <bean id="helloWorld" class="org.spring.hello.HelloWorld" autowire="constructor">
+        <property name="name" value="world" />
+    </bean>
+
+</beans>
