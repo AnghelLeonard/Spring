@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+    In autowiring by type, a property is autowired if exactly one bean of the property type exists in
+    the container.
+    -->
+    <bean class="org.spring.hello.WorldCountries">
+        <property name="countries">
+            <list>
+                <value>Portugal</value>
+                <value>Romania</value>
+                <value>France</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--
+    If there are more than one bean of type 'WorldCountries', a fatal exception is thrown:
+    org.springframework.beans.factory.NoUniqueBeanDefinitionException: expected single matching bean but found 2
+    -->
+    <!--<bean class="org.spring.hello.WorldCountries" />-->
+
+    <!-- Dependency injection using autowiring -->
+    <bean id="helloWorld" class="org.spring.hello.HelloWorld" autowire="byType">
+        <property name="name" value="world" />
+    </bean>
+
+</beans>
