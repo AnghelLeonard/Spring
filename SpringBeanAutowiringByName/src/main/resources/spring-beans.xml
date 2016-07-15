@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+    In autowiring by property name, Spring looks for a bean with the same name as the property that needs
+    to be autowired. You will also need a setter method for the property.
+    -->
+    <bean id="countries" class="org.spring.hello.WorldCountries">
+        <property name="countries">
+            <list>
+                <value>Portugal</value>
+                <value>Romania</value>
+                <value>France</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Dependency injection using autowiring -->
+    <bean id="helloWorld" class="org.spring.hello.HelloWorld" autowire="byName">
+        <property name="name" value="world" />
+    </bean>
+
+</beans>
