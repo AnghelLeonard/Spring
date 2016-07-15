@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+    Activates annotations in beans ALREADY registered in the application context (no matter if they were
+    defined with XML or by package scanning)
+    -->
+    <context:annotation-config/>
+
+    <!-- Dependency injection by bean type using @Resource annotation -->
+    <bean class="org.spring.hello.WorldCountries">
+        <property name="countries">
+            <list>
+                <value>Portugal</value>
+                <value>Romania</value>
+                <value>France</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--
+    This bean will interfere during dependency injection, causing a NoUniqueBeanDefinitionException.
+
+    See SpringFixUnsatisfiedDependencyException_1 and SpringFixUnsatisfiedDependencyException_2 applications
+    to learn how to make it work with several beans of same type.
+    -->
+    <!--<bean class="org.spring.hello.WorldCountries" />-->
+
+    <bean id="helloWorld" class="org.spring.hello.HelloWorld">
+        <property name="name" value="world" />
+    </bean>
+
+</beans>
