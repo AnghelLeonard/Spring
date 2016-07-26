@@ -1,7 +1,6 @@
 package sh.service;
 
 import org.springframework.stereotype.Service;
-import sh.model.Product;
 
 /**
  *
@@ -10,5 +9,5 @@ import sh.model.Product;
 @Service
 public interface ProductService {
     
-    public void persist(Product p);    
+    public void storeProducts();    
 }

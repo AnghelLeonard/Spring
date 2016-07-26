@@ -13,8 +13,8 @@
     </head>
     <body>        
         <h1>Insert three records ...</h1>
-        <form method="get" action="/AssertSQLStatementCount/insert">
-            <input type="submit" value="Insert 3 records"/>
+        <form method="get" action="${pageContext.request.contextPath}/store">
+            <input type="submit" value="Insert 3 records and assert 1"/>
         </form>
     </body>
 </html>
