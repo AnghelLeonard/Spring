@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.spi.PersistenceUnitInfo;
+import org.hibernate.Interceptor;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
 import org.reflections.Reflections;
@@ -37,7 +38,7 @@ public abstract class HibernateEntityManagerFactory {
         // NOPE
     }
 
-    public static EntityManagerFactory getEntityManagerFactory(GenericDataSource ds, boolean proxy, boolean hikaricp, int poolsize) {
+    public static EntityManagerFactory getEntityManagerFactory(GenericDataSource ds, boolean proxy, boolean hikaricp, int poolsize, Interceptor interceptor) {
 
         LOG.info(String.format(ENTITY_MANAGER_FACTORY, (proxy ? "proxied (ttddyy/datasource-proxy)" : "non-proxied") + " " + ds.database().name() + " database ..."));
         LOG.info(String.format(DATA_SOURCE_DETAILS, ds.toString()));
@@ -54,7 +55,7 @@ public abstract class HibernateEntityManagerFactory {
                 ds.getClass().getSimpleName(), getClassesAnnotatedWithEntity(), properties);
 
         Map<String, Object> configuration = new HashMap<>();
-        configuration.put(org.hibernate.jpa.AvailableSettings.INTERCEPTOR, null);
+        configuration.put(org.hibernate.jpa.AvailableSettings.INTERCEPTOR, interceptor);
         EntityManagerFactoryBuilderImpl entityManagerFactoryBuilder = new EntityManagerFactoryBuilderImpl(
                 new PersistenceUnitInfoDescriptor(persistenceUnitInfo), configuration
         );
