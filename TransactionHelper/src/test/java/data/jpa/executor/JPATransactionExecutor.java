@@ -21,15 +21,14 @@ import org.slf4j.LoggerFactory;
 import data.utils.DataSourceEnum.DataSourceStrategy;
 import data.jpa.emf.HibernateEntityManagerFactory;
 import java.sql.Connection;
-import java.sql.SQLException;
+import org.hibernate.Interceptor;
 import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 
 /**
  *
  * @author Anghel Leonard
  */
-public class JPATransactionExecutor {
+public abstract class JPATransactionExecutor {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(JPATransactionExecutor.class.getName());
 
@@ -40,11 +39,11 @@ public class JPATransactionExecutor {
     private final ScheduledExecutorService syncScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new MyThreadFactory());
     private static final CountDownLatch latch = new CountDownLatch(1);
 
-    public static void setDatabaseInfo(DataSourceStrategy dss, boolean proxy, boolean hikaricp, int poolsize) {
+    public static void setDatabaseInfo(DataSourceStrategy dss, boolean proxy, boolean hikaricp, int poolsize, Interceptor interceptor) {
         if (dss == DataSourceStrategy.MYSQL) {
-            entityManagerFactory = HibernateEntityManagerFactory.getEntityManagerFactory(new MySQLDataSource(), proxy, hikaricp, poolsize);
+            entityManagerFactory = HibernateEntityManagerFactory.getEntityManagerFactory(new MySQLDataSource(), proxy, hikaricp, poolsize, interceptor);
         } else if (dss == DataSourceStrategy.POSTGRESQL) {
-            entityManagerFactory = HibernateEntityManagerFactory.getEntityManagerFactory(new PostgreSQLDataSource(), proxy, hikaricp, poolsize);
+            entityManagerFactory = HibernateEntityManagerFactory.getEntityManagerFactory(new PostgreSQLDataSource(), proxy, hikaricp, poolsize, interceptor);
         }
     }
 
@@ -64,6 +63,10 @@ public class JPATransactionExecutor {
 
             return t;
         }
+    }
+    
+    protected Interceptor interceptor() {
+        return null;
     }
 
     @FunctionalInterface
@@ -95,11 +98,11 @@ public class JPATransactionExecutor {
     public interface BeforeAfterTransaction<T> extends Consumer<EntityManager> {
 
         default void beforeTransaction() {
-            LOG.info("--------- BEFORE TRANSACTION -----------");
+            LOG.info("--------- BEFORE TRANSACTION BEGINS -----------");
         }
 
         default void afterTransaction() {
-            LOG.info("---------- AFTER TRANSACTION -----------");
+            LOG.info("---------- AFTER TRANSACTION COMMIT-----------");
         }
     }
 
@@ -152,14 +155,11 @@ public class JPATransactionExecutor {
         syncExecutorService.shutdown();
     }
 
-    public void executeJPATransaction(BeforeAfterTransaction<EntityManager> f) {
+    public void executeJPATransaction(BeforeAfterTransaction<EntityManager> f, boolean evictCache) {
         EntityManager entityManager = null;
         EntityTransaction txn = null;
         try {
             entityManager = entityManagerFactory.createEntityManager();
-            f.beforeTransaction();
-            txn = entityManager.getTransaction();
-            txn.begin();
 
             Session session = (Session) entityManager.getDelegate();
             session.doWork((Connection connection) -> {
@@ -185,6 +185,14 @@ public class JPATransactionExecutor {
                 LOG.info("Current transaction isolation level: " + result);
             });
 
+            f.beforeTransaction();
+            txn = entityManager.getTransaction();
+            txn.begin();
+
+            if (evictCache) {
+                session.getSessionFactory().getCache().evictAllRegions();
+            }
+
             f.accept(entityManager);
 
             txn.commit();
@@ -199,5 +207,5 @@ public class JPATransactionExecutor {
                 entityManager.close();
             }
         }
-    }
+    }       
 }
