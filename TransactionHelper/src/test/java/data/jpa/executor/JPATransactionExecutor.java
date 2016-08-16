@@ -152,7 +152,7 @@ public abstract class JPATransactionExecutor {
                     }
                 }).forEach(System.out::println);
 
-        syncExecutorService.shutdown();
+        asyncExecutorService.shutdown();
     }
 
     public void executeJPATransaction(BeforeAfterTransaction<EntityManager> f, boolean evictCache) {
